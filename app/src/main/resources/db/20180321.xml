@@ -1,0 +1,322 @@
+<?xml version="1.1" encoding="UTF-8" standalone="no"?>
+<databaseChangeLog xmlns="http://www.liquibase.org/xml/ns/dbchangelog" xmlns:ext="http://www.liquibase.org/xml/ns/dbchangelog-ext" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog-ext http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-ext.xsd http://www.liquibase.org/xml/ns/dbchangelog http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.5.xsd">
+    <changeSet author="fbelov" id="20180321.xml">
+        <createTable tableName="billing_base_usage">
+            <column name="user_id" type="VARCHAR(1024)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="month" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueNumeric="0" name="days_used" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="days_used_date_updated" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueNumeric="0" name="days_payed" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="pricing" type="CHAR(1)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="billing_invoice">
+            <column autoIncrement="true" name="id" type="SERIAL">
+                <constraints primaryKey="true" primaryKeyName="billing_invoice_pkey"/>
+            </column>
+            <column name="user_id" type="VARCHAR(1024)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="pricing" type="CHAR(1)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="amount" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="CHAR(3)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="context" type="VARCHAR(2048)">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="billing_payment">
+            <column name="id" type="VARCHAR(24)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="VARCHAR(1024)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="now()" name="date" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="money" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="payed" type="BOOLEAN"/>
+        </createTable>
+
+        <createTable tableName="billing_usage">
+            <column name="user_id" type="VARCHAR(1024)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date" type="date">
+                <constraints nullable="false"/>
+            </column>
+            <column name="pricing" type="CHAR(1)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="CHAR(1)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="month" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="amount" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="money" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="juser">
+            <column name="mail" type="VARCHAR(1024)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password" type="VARCHAR(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password_reset_token" type="VARCHAR(24)"/>
+            <column name="mail_confirm_token" type="VARCHAR(24)"/>
+            <column name="account_delete_token" type="VARCHAR(24)"/>
+            <column name="account_delete_token_date" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="pricing" type="CHAR(1)"/>
+            <column defaultValueBoolean="false" name="pricing_problem_disk_exceeded" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="pricing_problem_traffic_exceeded" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="pricing_problem_balance" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueNumeric="0" name="pricing_balance" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="pricing_balance_to_be_recalculated" type="BOOLEAN"/>
+            <column defaultValueComputed="now()" name="pricing_base_usage_date" type="date">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="queue_task">
+            <column autoIncrement="true" name="id" type="SERIAL">
+                <constraints primaryKey="true" primaryKeyName="queue_task_pkey"/>
+            </column>
+            <column defaultValueNumeric="10" name="priority" type="SMALLINT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="type" type="VARCHAR(64)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValue="n" name="status" type="CHAR(1)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="now()" name="posted_on" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="queued_on" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="status_on" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="started_at" type="TIMESTAMP WITH TIME ZONE"/>
+            <column name="finished_at" type="TIMESTAMP WITH TIME ZONE"/>
+            <column defaultValueNumeric="0" name="iterations_count" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="context" type="TEXT"/>
+        </createTable>
+
+        <createTable tableName="repo">
+            <column name="id" type="CHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="user_id" type="VARCHAR(1024)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="name" type="VARCHAR(256)"/>
+            <column defaultValueNumeric="0" name="disk_usage_in_mb" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="disk_usage_requested_to_update_at" type="TIMESTAMP WITH TIME ZONE"/>
+        </createTable>
+
+        <createTable tableName="repo_access_log">
+            <column name="id" type="CHAR(36)"/>
+            <column defaultValueComputed="now()" name="date" type="TIMESTAMP WITH TIME ZONE">
+                <constraints nullable="false"/>
+            </column>
+            <column name="repo_id" type="CHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="token" type="VARCHAR(24)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="repo_user" type="VARCHAR(256)"/>
+            <column name="method" type="VARCHAR(6)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="path" type="VARCHAR(2048)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="status" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="size_in_kb" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueBoolean="false" name="traffic_processed" type="BOOLEAN"/>
+        </createTable>
+
+        <createTable tableName="repo_backup_config">
+            <column name="repo_id" type="CHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="repo" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="repo_backup_data">
+            <column name="repo_id" type="CHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="date" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="size_in_kb" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="files_count" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="repo_realm">
+            <column name="token" type="VARCHAR(24)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="repo_id" type="CHAR(20)"/>
+            <column defaultValueBoolean="false" name="basic_auth" type="BOOLEAN">
+                <constraints nullable="false"/>
+            </column>
+            <column name="access" type="INT"/>
+        </createTable>
+
+        <createTable tableName="repo_stats_disk_by_month">
+            <column name="repo_id" type="CHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="month" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="disk_usage_in_mb" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="repo_stats_traffic_by_month">
+            <column name="repo_id" type="CHAR(20)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="month" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="traffic_in_kb" type="TEXT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="traffic_in_mb_payed" type="INT">
+                <constraints nullable="false"/>
+            </column>
+            <column name="traffic_in_mb_total" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createTable tableName="repo_user">
+            <column autoIncrement="true" name="id" type="SERIAL">
+                <constraints primaryKey="true" primaryKeyName="repo_user_pkey"/>
+            </column>
+            <column name="token" type="VARCHAR(24)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="username" type="VARCHAR(256)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="password" type="VARCHAR(128)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="access" type="INT">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <addPrimaryKey columnNames="user_id, month, pricing" constraintName="billing_base_usage_pkey" tableName="billing_base_usage"/>
+        <addPrimaryKey columnNames="id" constraintName="billing_payment_pkey" tableName="billing_payment"/>
+        <addPrimaryKey columnNames="user_id, pricing, type, month" constraintName="billing_usage_pkey" tableName="billing_usage"/>
+        <addPrimaryKey columnNames="mail" constraintName="juser_pkey" tableName="juser"/>
+        <addPrimaryKey columnNames="id" constraintName="repo_pkey" tableName="repo"/>
+        <addPrimaryKey columnNames="token" constraintName="repo_realm_pkey" tableName="repo_realm"/>
+        <addPrimaryKey columnNames="repo_id, month" constraintName="repo_stats_disk_by_month_pkey" tableName="repo_stats_disk_by_month"/>
+        <addPrimaryKey columnNames="repo_id, month" constraintName="repo_stats_traffic_by_month_pkey" tableName="repo_stats_traffic_by_month"/>
+
+        <createIndex indexName="repo__user_id" tableName="repo">
+            <column name="user_id"/>
+        </createIndex>
+
+        <createIndex indexName="repo_access_log__repo_id" tableName="repo_access_log">
+            <column name="repo_id"/>
+        </createIndex>
+
+        <createIndex indexName="repo_backup_config__id" tableName="repo_backup_config" unique="true">
+            <column name="repo_id"/>
+            <column name="date"/>
+        </createIndex>
+
+        <createIndex indexName="repo_backup_config__repo_id" tableName="repo_backup_config">
+            <column name="repo_id"/>
+        </createIndex>
+
+        <createIndex indexName="repo_backup_data__id" tableName="repo_backup_data" unique="true">
+            <column name="repo_id"/>
+            <column name="date"/>
+        </createIndex>
+
+        <createIndex indexName="repo_backup_data__repo_id" tableName="repo_backup_data">
+            <column name="repo_id"/>
+        </createIndex>
+
+        <createIndex indexName="repo_user__token" tableName="repo_user">
+            <column name="token"/>
+        </createIndex>
+
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="billing_invoice" constraintName="billing_invoice_user_id_fkey" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="NO ACTION" referencedColumnNames="mail" referencedTableName="juser"/>
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="billing_payment" constraintName="billing_payment_user_id_fkey" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="NO ACTION" referencedColumnNames="mail" referencedTableName="juser"/>
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="billing_usage" constraintName="billing_usage_user_id_fkey" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="NO ACTION" referencedColumnNames="mail" referencedTableName="juser"/>
+        <addForeignKeyConstraint baseColumnNames="repo_id" baseTableName="repo_backup_config" constraintName="repo_backup_config_repo_id_fkey" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="repo"/>
+        <addForeignKeyConstraint baseColumnNames="repo_id" baseTableName="repo_backup_data" constraintName="repo_backup_data_repo_id_fkey" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="repo"/>
+        <addForeignKeyConstraint baseColumnNames="repo_id" baseTableName="repo_realm" constraintName="repo_realm_repo_id_fkey" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="repo"/>
+        <addForeignKeyConstraint baseColumnNames="repo_id" baseTableName="repo_stats_disk_by_month" constraintName="repo_stats_disk_by_month_repo_id_fkey" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="repo"/>
+        <addForeignKeyConstraint baseColumnNames="repo_id" baseTableName="repo_stats_traffic_by_month" constraintName="repo_stats_traffic_by_month_repo_id_fkey" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="NO ACTION" referencedColumnNames="id" referencedTableName="repo"/>
+        <addForeignKeyConstraint baseColumnNames="user_id" baseTableName="repo" constraintName="repo_user_id_fkey" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="NO ACTION" referencedColumnNames="mail" referencedTableName="juser"/>
+        <addForeignKeyConstraint baseColumnNames="token" baseTableName="repo_user" constraintName="repo_user_token_fkey" deferrable="false" initiallyDeferred="false" onDelete="CASCADE" onUpdate="NO ACTION" referencedColumnNames="token" referencedTableName="repo_realm"/>
+    </changeSet>
+</databaseChangeLog>

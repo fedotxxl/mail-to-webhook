@@ -1,0 +1,9 @@
+#use -Dspring.profiles.active=prod to activate this profile
+app.host: https://mymavenrepo.com
+
+spring:
+  mvc:
+    logResolvedException: false
+  devtools:
+    livereload.enabled: false
+    restart.enabled: false

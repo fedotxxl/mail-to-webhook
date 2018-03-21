@@ -1,0 +1,153 @@
+buildscript {
+    repositories {
+        maven { url "http://repo.spring.io/libs-snapshot" }
+        maven { url "https://plugins.gradle.org/m2/" }
+        mavenLocal()
+    }
+    dependencies {
+        classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+        classpath "info.robotbrain.gradle.lombok:lombok-gradle:1.1"
+    }
+}
+
+plugins {
+    id "nebula.ospackage" version "3.4.0"
+}
+
+apply from: "https://mymavenrepo.com/repo/${myMavenRepoReadToken}/soyuz-gradle/1.0/soyuz.publish.deb-1.0.gradle"
+apply from: "https://mymavenrepo.com/repo/${myMavenRepoReadToken}/soyuz-gradle/1.0/test.integration-1.0.gradle"
+apply plugin: "nebula.deb"
+apply plugin: "groovy"
+apply plugin: "info.robotbrain.lombok"
+apply plugin: "org.springframework.boot"
+
+version = "0.1"
+
+////add static generated files to jar content under /static directory
+//task copyStaticFiles(type: Copy) {
+//    from "src/main/app/out"
+//    from("src/main/app/src/") {
+//        include '_bower_components/**'
+//        include 'assets/**'
+//    }
+//    into "${sourceSets.main.output.resourcesDir}/static"
+//}
+//
+//processResources.dependsOn copyStaticFiles
+
+repositories {
+    mavenCentral()
+    maven { url "http://repo.spring.io/libs-snapshot" }
+    maven { url "http://oss.sonatype.org/content/repositories/snapshots/" }
+    maven { url "http://maven2.gueck.com/releases" }
+}
+
+dependencies {
+    compile project(":utils:utils-dao-jooq")
+
+    compile('org.springframework.boot:spring-boot-starter')
+    compile("org.springframework.boot:spring-boot-starter-jdbc")
+
+    compile "org.springframework:spring-tx:$springVersion"
+    compile "org.springframework:spring-context-support:$springVersion"
+
+    compile cl.javax.mail
+
+    compile cl.db.connection.zaxxer
+    compile cl.db.jooq
+
+    compile cl.log.logentries
+    compile cl.log.sentry
+    compile cl.quartz
+    compile cl.utils.guava
+    compile cl.utils.lombok
+    compile cl.utils.soyuz.springJdbc
+    compile cl.utils.soyuz.json
+    compile cl.utils.thedocs.isTo
+    compile cl.utils.thedocs.loge
+    compile cl.json.jackson.jsr310
+
+
+    compile "ch.qos.logback:logback-core:${logbackVersion}"
+    compile "ch.qos.logback:logback-classic:${logbackVersion}"
+
+    //db
+    compile "org.liquibase:liquibase-core"
+
+    testCompile cl.test.junit
+    testCompile "org.codehaus.groovy:groovy-all:2.4.4"
+    testCompile "org.springframework.boot:spring-boot-starter-test"
+    testCompile "org.apache.httpcomponents:httpmime:4.3.6"
+    testCompile "com.github.lookfirst:sardine:5.4"
+
+    ["spock-core", "spock-spring"].each {
+        testCompile "org.spockframework:$it:${spockVersion}"
+    }
+}
+
+task runProd(type: JavaExec) {
+    classpath configurations.runtime, sourceSets.main.output
+    main = 'io.belov.maven.Application'
+    args = ["-Dspring.profiles.active=prod"]
+}
+
+task runWin(type: JavaExec) {
+    classpath configurations.runtime, sourceSets.main.output
+    main = 'io.belov.maven.Application'
+    args = ["-Dspring.profiles.active=win"]
+}
+
+task runLinux(type: JavaExec) {
+    classpath configurations.runtime, sourceSets.main.output
+    main = 'io.belov.maven.Application'
+    args = ["-Dspring.profiles.active=linux"]
+}
+
+test {
+    testLogging.showStandardStreams = true
+}
+
+integrationTest {
+    testLogging.showStandardStreams = true
+}
+
+bootRun {
+    systemProperties System.properties
+}
+
+task deb(type: Deb) {
+    packageName = "mmr-site"
+    release = 1
+    os = LINUX
+
+    into "/job/mmr-site"
+
+    from(jar.outputs.files) {
+        into "lib"
+    }
+    from(configurations.runtime) {
+        into "lib"
+    }
+    from("./bin/prod/site.sh") {
+        into "/job/mmr-site/bin/"
+        rename ".*", "run"
+    }
+    from("../bin/app/") {
+        into "/job/mmr-site/bin/app/"
+    }
+}
+
+//http://sergeydanilov.blogspot.ru/2015/05/liquibase-gradle.html
+task db(type: JavaExec) {
+    group = "Liquibase"
+    classpath configurations.compile
+    main = "liquibase.integration.commandline.Main"
+    args "--changeLogFile=src/main/resources/db/version-increment.xml"
+    args "--username=mail_to_webhook"
+    args "--password=abc"
+    args "--url=jdbc:postgresql://127.0.0.1:54392/mail_to_webhook"
+    args "--driver=org.postgresql.Driver"
+    args "--logLevel=debug"
+    args "--defaultSchemaName=public"
+    args "update"
+}

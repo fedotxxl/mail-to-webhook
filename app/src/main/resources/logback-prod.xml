@@ -1,0 +1,57 @@
+<included>
+
+    <appender name="main" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>/job/mmr-site/log/mmr.log</file>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS, UTC} [%thread] [%X] %-5level %logger{36} - %msg%n</pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>/job/mmr-site/log/mmr.%d{yyyy-MM-dd}.%i.log.gz</fileNamePattern>
+            <maxFileSize>100MB</maxFileSize>
+            <maxHistory>30</maxHistory>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+    </appender>
+
+    <if condition='isDefined("logback.sentry")'>
+        <then>
+            <appender name="sentry" class="com.getsentry.raven.logback.SentryAppender">
+                <dsn>${logback.sentry}</dsn>
+                <tags>module:bg</tags>
+                <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
+                    <level>${logback.sentry.level:-ERROR}</level>
+                </filter>
+            </appender>
+        </then>
+        <else>
+            <appender name="sentry" class="ch.qos.logback.core.helpers.NOPAppender"></appender>
+        </else>
+    </if>
+
+    <if condition='isDefined("logback.logentries")'>
+        <then>
+            <appender name="logentries" class="com.getsentry.raven.logback.SentryAppender">
+                <ssl>false</ssl>
+                <token>${logback.logentries}</token>
+                <facility>USER</facility>
+                <encoder>
+                    <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS, UTC} [%-5p] [%c{2}]: %m%n</pattern>
+                    <charset>UTF-8</charset>
+                </encoder>
+            </appender>
+        </then>
+        <else>
+            <appender name="logentries" class="ch.qos.logback.core.helpers.NOPAppender"></appender>
+        </else>
+    </if>
+
+    <root level="info">
+        <appender-ref ref="main" />
+        <appender-ref ref="logentries" />
+        <appender-ref ref="sentry" />
+    </root>
+
+    <!--debug data-->
+    <logger name="io.belov" level="debug"/>
+
+</included>

@@ -1,0 +1,9 @@
+mail-to-webhook-db-postgres:
+ container_name: mail-to-webhook-db-postgres
+ image: sameersbn/postgresql:9.4
+ ports:
+  - "54392:5432"
+ environment:
+  - DB_USER=mail_to_webhook
+  - DB_PASS=abc
+  - DB_NAME=mail_to_webhook

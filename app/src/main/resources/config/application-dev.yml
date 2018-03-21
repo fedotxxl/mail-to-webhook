@@ -1,0 +1,10 @@
+jdbc:
+  connection:
+    driver_class: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:54392/mail_to_webhook
+    username: mail_to_webhook
+    password: abc
+
+liquibase:
+  enabled: false
+  change-log: classpath:db/version-increment.xml

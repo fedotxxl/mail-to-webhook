@@ -1,0 +1,33 @@
+# idea
+/.idea
+.idea/
+.ideaDataSources/
+*.iws
+*.iml
+*.ipr
+*.ids
+dataSources/
+
+#sass
+.sass-cache/
+
+# "temporary" build files
+target/
+build/
+/out/
+classes/
+
+#gradle
+.gradle/
+
+#static folder
+/src/main/resources/static/
+
+#npm
+node_modules/
+
+#bower
+_bower_components/
+
+#dev
+dev/logs/

@@ -1,0 +1,25 @@
+apply from: "https://mymavenrepo.com/repo/${myMavenRepoReadToken}/soyuz-gradle/1.0/base-1.0.gradle"
+
+task wrapper(type: Wrapper) {
+    gradleVersion = '3.5'
+}
+
+allprojects {
+    group = "com.mymavenrepo"
+
+    apply plugin: "groovy"
+
+    ext {
+        springBootVersion = "1.5.2.RELEASE"
+        springVersion = "4.3.7.RELEASE"
+        spockVersion = "1.0-groovy-2.4"
+        logbackVersion = "1.1.11"
+
+        cl.db.jooq = 'org.jooq:jooq:3.9.1'
+    }
+
+    configurations.all {
+        // check for updates every build
+        resolutionStrategy.cacheChangingModulesFor 0, 'seconds'
+    }
+}
